@@ -1,0 +1,47 @@
+	-- 5. Prüfungskomponente Informatikprojekt BLL --
+
+NAME - VERSION DES: GERÜSTS - SENSOREN UND ELEKTRIK - WARNEHMUNG - WELTMODELLS UND GEDÄCHTNISSES - VERHALTENSWEISE - BEWEGUNGSWEG - KOMMNUIKATION
+
+AKTUELLE VERSION:	0.0.0.1.1.2.0
+
+	-- CODE
+- WARNEHMUNG
+- WELTMODELL UND GEDÄCHTNISS
+- VERHALTENSWEISE
+
+	-- TECHNIK
+- GERÜSTS
+- SENSOREN UND ELEKTRIK
+
+	-- DATENÜBERTRAGUNG
+- KOMMUNIKATION
+
+	--VERSIONSVERLAUF MIND KURZ:
+- WARNEHMUNG
+	- V1	
+	- V2
+	- V3
+
+- WELTMODELL UND GEDÄCHTNISS
+	- V1	-- VERWENDET EINE 2-DIMENSIONALE MAP
+	- V2	-- IMPLEMENTIERTES GRID-MODELL MIT GESPEICHERTER HÖHE DER BESETZTEN ZELLEN
+	- V3	-- ECHTE 3-DIMENSIONALE MAP
+
+- VERHALTENSWEISE
+	- V1	-- REGELN (golang)
+	- V2	-- 
+	- V3	-- VOLLSTÄNDIGES RL (python)
+
+- BEWEGUNGSWEG
+	- V1	-- RRT
+	- V2	-- RRT*
+	- V3	-- Informed RRT*
+
+	- VERSIONSVERLAUF BLOOD KURZ:
+- KOMMUNTIKATION
+	- V1	-- JSON DATEIEN <- langsam aber einsehen von Daten zum debuggen
+	- V2	-- TCP
+	- V3	-- UDP
+
+„Inwieweit kann die Kombination aus effizienter Raumrepräsentation und algorithmischer Pfadplanung 
+die autonome Navigation eines mobilen Roboters ermöglichen?“
