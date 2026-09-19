@@ -14,15 +14,15 @@ The system is designed in a modular way so that individual components can evolve
 
 The software is divided into five main modules:
 
-# Perception
+### Perception
   Processes sensor data and extract relevant information about the environment.
-# World Model
+### World Model
   Maintains an internal representation of the robot's surroundings, including detected objects, obstacles, and the goal.
-# Behavior
+### Behavior
   Determines the robot's actions based on the current state of the world model and mission objectives.
-# Path Planning
+### Path Planning
   Calculates feasible paths while avoiding obstacles and optimizing movement.
-# Motion Execution
+### Motion Execution
   Transforms planned paths into motor commands and controls the robot's movement.
 
 
