@@ -151,6 +151,8 @@ func (w *World) TurnAngleToBall() (float64, bool) {
 }
 
 // WRITING IN THE JSON
+// THE JSON FILE IS TEMPORARY
+// IT IS CURRENTLY USED TO PROVIDE AN EASY WAY TO READ THE DATA FOR CONTROL
 
 type WorldDataJSON struct {
 }
@@ -170,8 +172,7 @@ func SaveData(x DataJSON) {
 	json.NewEncoder(file).Encode(x)
 }
 
-// has to be updated
-
+// CHECKS WHETHER AN OBJECT IS IN THE WAY OR WHETHER THE ROBOT IS TOO LARGE TO PASS
 func ObstacleFree(a, b ty.PointRRT) bool {
 	return true
 }
