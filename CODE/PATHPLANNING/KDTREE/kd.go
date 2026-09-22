@@ -4,7 +4,6 @@ package kd
 import (
 	ty "CODE/PATHPLANNING/TYPES"
 	"math"
-	"sort" // -- will be implemented later by myself
 )
 
 // building a K-D Tree by adding individual Points
@@ -46,48 +45,6 @@ func insertPointHilf(node *ty.KDNode, rrtnode *ty.RRTNode, d int) *ty.KDNode { /
 	}
 
 	return node // return Point, finish
-}
-
-// building a K-D Tree using a list
-
-// the median of the list will be ussed in order to build a balanced tree
-func BuildKDTreeFromList(ps []*ty.RRTNode) *ty.KDTree {
-	return buildKDTreeFromListHilf(ps, 0) // -- starting in the first dimension
-}
-
-// -- for now the hyperplanes will be choosen cyclically by dimension, later it will be by spred
-func buildKDTreeFromListHilf(ps []*ty.RRTNode, d int) *ty.KDTree { // p = point, ps = points
-	if len(ps) == 0 {
-		return &ty.KDTree{Root: nil}
-	}
-	dimension := d % 3
-	// -- MEDIAN MIT QUICKSELECT FINDEN; BESTIMMUNG MEDIAN VON O n log^2 n AUF O n log n
-	// -- -> OPTIMIERUNG MÖGLICH
-	switch dimension {
-	case 0:
-		sort.Slice(ps, func(i, j int) bool {
-			return ps[i].Point.X < ps[j].Point.X
-		})
-	case 1:
-		sort.Slice(ps, func(i, j int) bool {
-			return ps[i].Point.Y < ps[j].Point.Y
-		})
-	case 2:
-		sort.Slice(ps, func(i, j int) bool {
-			return ps[i].Point.Z < ps[j].Point.Z
-		})
-	}
-	median := len(ps) / 2
-
-	node := &ty.KDNode{Value: ps[median]}
-
-	left := buildKDTreeFromListHilf(ps[:median], d+1)
-	right := buildKDTreeFromListHilf(ps[median+1:], d+1)
-
-	node.Left = left.Root
-	node.Right = right.Root
-
-	return &ty.KDTree{Root: node}
 }
 
 func NearestNeighbor(p *ty.RRTNode, t ty.KDTree) *ty.RRTNode {

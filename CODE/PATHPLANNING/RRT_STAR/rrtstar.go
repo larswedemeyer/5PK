@@ -12,23 +12,32 @@ type RRTStarTree struct { // the tree used by the rrt* algorithm
 	Nodes []*ty.RRTNode
 }
 
-// it still has to be implemented, that the tree searches towards the goal
-
-func RRTstar(qinit ty.PointRRT, N int, rad, deltaQ, min, max float64) *RRTStarTree {
+func RRTstar(qinit, qgoal ty.PointRRT, N int, rad, deltaQ, goalRadius, min, max float64) (*RRTStarTree, *ty.RRTNode) {
+	// func RRTstar(qinit ty.PointRRT, N int, rad, deltaQ, min, max float64) *RRTStarTree {
 	start := &ty.RRTNode{Point: qinit, Parent: nil, Children: []*ty.RRTNode{}, Cost: 0} // generates the starting point
 	tree := &RRTStarTree{Root: nil, Nodes: []*ty.RRTNode{}}                             // generates an empty rrt* tree
 
-	return rRTStarHilf(start, N, tree, rad, deltaQ, min, max)
+	return rRTStarHilf(start, qgoal, N, tree, rad, deltaQ, min, max, goalRadius)
 }
 
-func rRTStarHilf(qinit *ty.RRTNode, N int, T *RRTStarTree, rad float64, deltaQ float64, min float64, max float64) *RRTStarTree {
+func rRTStarHilf(qinit *ty.RRTNode, qgoal ty.PointRRT, N int, T *RRTStarTree, rad, deltaQ, goalRadius, min, max float64) (*RRTStarTree, *ty.RRTNode) {
 
-	T.insertNode(nil, qinit)       // insert the stating point into the rrt* tree
+	T.insertNode(nil, qinit)       // insert the starting point into the rrt* tree
 	KTree := ty.KDTree{Root: nil}  // generates an empty kd tree
 	k.KDInsertPoint(&KTree, qinit) // insert the starting point into the kd tree
 
+	var bestGoal *ty.RRTNode // the path leading to this point is the best one found
+
 	for count := 0; count < N; count++ {
-		qrand := randompoint(min, max)              // generate a random point
+
+		var qrand *ty.RRTNode
+
+		if rand.Float64() < 0.1 { // Goal Bias (10%)
+			qrand = &ty.RRTNode{Point: qgoal}
+		} else {
+			qrand = randompoint(min, max)
+		}
+
 		qnearest := k.NearestNeighbor(qrand, KTree) // find the nearest neighbor using the kd tree
 		if qnearest == nil {                        // if there isnt any, skip
 			continue
@@ -37,19 +46,31 @@ func rRTStarHilf(qinit *ty.RRTNode, N int, T *RRTStarTree, rad float64, deltaQ f
 		if qnew == nil {
 			continue
 		}
-		if !wm.ObstacleFree(qnearest.Point, qnew.Point) { // check if the path is empty
+		if !wm.ObstacleFree(qnearest.Point, qnew.Point) { // check if path is empty
 			continue
 		}
-		qmin := ChooseParent(qnew, qnearest, rad, KTree) // determining the best parent from Q_near (difference RRT RRT*)
-		if qmin == nil {
+		qparent := ChooseParent(qnew, qnearest, rad, KTree) // determining the best parent from Q_neat (difference RRT and RRT*)
+		if qparent == nil {
 			continue
 		}
-		T.insertNode(qmin, qnew)      // insert in rrt* tree
+
+		T.insertNode(qparent, qnew) // insert into rrt* tree
+
 		k.KDInsertPoint(&KTree, qnew) // insert qnew now, otherwise the point will find itself as its nearest neighbor
-		T.Rewire(qnew, rad, KTree)    // check if a already existing node can find a better path using the new connection
+
+		T.Rewire(qnew, rad, KTree) // check if a already existing node can find a better path using the new connection
+
+		// check if goal can be reached
+		distGoal := ty.DistanceBetweenPoints(qnew.Point, qgoal)
+		if distGoal <= goalRadius && wm.ObstacleFree(qnew.Point, qgoal) { // if the point lays within the searched radius and the path is reachable
+			goalCost := qnew.Cost + distGoal                 // then the cost will be calculated
+			if bestGoal == nil || goalCost < bestGoal.Cost { // if the path is better than the ones before
+				bestGoal = &ty.RRTNode{Point: qgoal, Parent: qnew, Children: nil, Cost: goalCost} // take it
+			}
+		}
 	}
 
-	return T
+	return T, bestGoal // after weve done it for enough iterations, we can stop
 }
 
 func ChooseParent(qrand *ty.RRTNode, qnearest *ty.RRTNode, rad float64, KT ty.KDTree) *ty.RRTNode {
@@ -173,4 +194,18 @@ func randompoint(min, max float64) *ty.RRTNode {
 // RangeFloat generates a random number in a given intervall [min, max)
 func randomfloat(min, max float64) float64 {
 	return min + rand.Float64()*(max-min)
+}
+
+func ExtractPath(goal *ty.RRTNode) []ty.PointRRT {
+	path := []ty.PointRRT{}
+	current := goal
+	for current != nil {
+		path = append(path, current.Point)
+		current = current.Parent
+	}
+	// umdrehen
+	for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
+		path[i], path[j] = path[j], path[i]
+	}
+	return path
 }
