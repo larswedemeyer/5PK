@@ -1,5 +1,6 @@
 // the following Code is used for the esp32 in order to connect it with the raspberry pi and take pictures
-
+// this code is implemented and compatible with Arduino
+// it is included here solely for documentation and to showcase the implementation on GitHub
 /*
 #include "esp_camera.h"
 #include <WiFi.h>
@@ -69,7 +70,7 @@ void setup() {
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
 
-  config.frame_size = FRAMESIZE_QQVGA;
+  config.frame_size = FRAMESIZE_QQVGA; // Embedded Systems ~> (1280 x 720) XGA or (1440 × 1080) SXGA (UXGA 1600x1200 highest for an ESP32) for 10-30 fps on compact hardware; Machine Vision ~> around 2 to 12 Megapixel
   config.jpeg_quality = 25;
   config.fb_count = 1;
 

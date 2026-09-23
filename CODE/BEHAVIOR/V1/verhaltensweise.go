@@ -13,8 +13,6 @@ import (
 // SEARCHING THE BALL
 // GOING TO THE BALL
 // PICKING UP THE BALL (Search is over)
-
-// NEEDS A BALL EVERSEEN
 // DISTANCE TOBALL
 
 func Decisions(w *wm.World) {
@@ -34,8 +32,6 @@ func PickBallUp() {}
 
 func SearchBall() {}
 
-func GoToBall() {
-
-}
+func GoToBall() {}
 
 // REFERS TO THE RRT* PATH FOR MOVEMENT
