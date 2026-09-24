@@ -42,14 +42,14 @@ func rRTStarHilf(qinit *ty.RRTNode, qgoal ty.PointRRT, N int, T *RRTStarTree, ra
 		if qnearest == nil {                        // if there isnt any, skip
 			continue
 		}
-		qnew := Steer(qnearest, qrand, deltaQ) // qnews distance to qnearest is at most deltaQ
+		qnew := steer(qnearest, qrand, deltaQ) // qnews distance to qnearest is at most deltaQ
 		if qnew == nil {
 			continue
 		}
 		if !wm.ObstacleFree(qnearest.Point, qnew.Point) { // check if path is empty
 			continue
 		}
-		qparent := ChooseParent(qnew, qnearest, rad, KTree) // determining the best parent from Q_neat (difference RRT and RRT*)
+		qparent := chooseParent(qnew, qnearest, rad, KTree) // determining the best parent from Q_neat (difference RRT and RRT*)
 		if qparent == nil {
 			continue
 		}
@@ -58,7 +58,7 @@ func rRTStarHilf(qinit *ty.RRTNode, qgoal ty.PointRRT, N int, T *RRTStarTree, ra
 
 		k.KDInsertPoint(&KTree, qnew) // insert qnew now, otherwise the point will find itself as its nearest neighbor
 
-		T.Rewire(qnew, rad, KTree) // check if a already existing node can find a better path using the new connection
+		T.rewire(qnew, rad, KTree) // check if a already existing node can find a better path using the new connection
 
 		// check if goal can be reached
 		distGoal := ty.DistanceBetweenPoints(qnew.Point, qgoal)
@@ -73,7 +73,7 @@ func rRTStarHilf(qinit *ty.RRTNode, qgoal ty.PointRRT, N int, T *RRTStarTree, ra
 	return T, bestGoal // after weve done it for enough iterations, we can stop
 }
 
-func ChooseParent(qrand *ty.RRTNode, qnearest *ty.RRTNode, rad float64, KT ty.KDTree) *ty.RRTNode {
+func chooseParent(qrand *ty.RRTNode, qnearest *ty.RRTNode, rad float64, KT ty.KDTree) *ty.RRTNode {
 	if qrand == nil || qnearest == nil {
 		return nil
 	}
@@ -99,7 +99,7 @@ func ChooseParent(qrand *ty.RRTNode, qnearest *ty.RRTNode, rad float64, KT ty.KD
 }
 
 // check if we can find a better path for already existing nodes using qrand
-func (T *RRTStarTree) Rewire(qrand *ty.RRTNode, rad float64, KT ty.KDTree) {
+func (T *RRTStarTree) rewire(qrand *ty.RRTNode, rad float64, KT ty.KDTree) {
 	if qrand == nil {
 		return
 	}
@@ -166,7 +166,7 @@ func (T *RRTStarTree) insertNode(qparent *ty.RRTNode, qson *ty.RRTNode) {
 }
 
 // Steer bewegt sich von qfrom in Richtung qto, maximal um deltaQ, dadurch RRT-Schritt nicht beliebig lang
-func Steer(qfrom *ty.RRTNode, qto *ty.RRTNode, deltaQ float64) *ty.RRTNode {
+func steer(qfrom *ty.RRTNode, qto *ty.RRTNode, deltaQ float64) *ty.RRTNode {
 	if qfrom == nil || qto == nil {
 		return nil
 	}
