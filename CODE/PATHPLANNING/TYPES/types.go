@@ -40,3 +40,11 @@ func DistanceBetweenPoints(p1, p2 PointRRT) float64 {
 	return math.Sqrt(dx*dx + dy*dy + dz*dz) // -- math.Pow has a longer runtime as dx*dx
 	// -- return math.Sqrt(math.Pow((p1.X-p2.X), 2)+math.Pow((p1.Y-p2.Y), 2)+math.Pow((p1.Z-p2.Z), 2))
 }
+
+func AddTwoPoints(p1, p2 PointRRT) PointRRT {
+	return PointRRT{X: p1.X + p2.X, Y: p1.Y + p2.Y, Z: p1.Z + p2.Z}
+}
+
+func VectorScaling(a float64, p PointRRT) PointRRT {
+	return PointRRT{X: a * p.X, Y: a * p.Y, Z: a * p.Z}
+}
