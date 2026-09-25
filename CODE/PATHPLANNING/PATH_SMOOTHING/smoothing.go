@@ -51,6 +51,10 @@ func pruning(p []ty.PointRRT) []ty.PointRRT { // filter out unnecessary points
 // gibt eine Liste an Werten aus
 func bspline(p []ty.PointRRT, t float64) []ty.PointRRT {
 
+	if len(p) < 4 {
+		return p
+	}
+
 	bspp := []ty.PointRRT{}
 
 	for anf := 0.0; anf < 1; anf += t {
