@@ -10,13 +10,17 @@ import (
 // path smoothing per B Spline curve
 // dann Projektion auf eine gewölbte Fläche
 
-func PathSmoothing(goal *ty.RRTNode, t float64) []ty.PointRRT {
-	return hilfpathsmoothing(r.ExtractPath(goal), t)
+// zu steile kurven noch beachten
+
+func PathSmoothing(goal *ty.RRTNode, N int, rad, deltaQ, goalRadius, min, max, t float64) []ty.PointRRT {
+	return hilfpathsmoothing(r.ExtractPath(goal), N, rad, deltaQ, goalRadius, min, max, t)
 }
 
-func hilfpathsmoothing(startpath []ty.PointRRT, t float64) []ty.PointRRT {
-	path := pruning(startpath)
-	return bspline(path, t)
+func hilfpathsmoothing(startpath []ty.PointRRT, N int, rad, deltaQ, goalRadius, min, max, t float64) []ty.PointRRT {
+	purgedpath := pruning(startpath)
+	smoothedpath := bspline(purgedpath, t)
+	projectedpath := projection(smoothedpath)
+	return correct(projectedpath, N, rad, deltaQ, goalRadius, min, max)
 }
 
 // can be replaced with random purging
@@ -61,6 +65,9 @@ func bspline(p []ty.PointRRT, t float64) []ty.PointRRT {
 		bspp = append(bspp, bsplinehilf(p, anf))
 	}
 	bspp = append(bspp, bsplinehilf(p, 1))
+
+	bspp[0] = p[0]
+	bspp[len(bspp)-1] = p[len(p)-1] // the start and goal have to always be the same
 
 	return bspp
 }
@@ -123,6 +130,32 @@ func knotenvektoren(n, k int) []float64 {
 	return T
 }
 
+// graph needs to be projected on the real 3D map in order to calculate possible movements
 func projection(t []ty.PointRRT) []ty.PointRRT {
 	return t
+}
+
+// it has to be made sure that the final path is also valid
+func correct(p []ty.PointRRT, N int, rad, deltaQ, goalRadius, min, max float64) []ty.PointRRT {
+
+	final := []ty.PointRRT{}
+
+	for i := 0; i < len(p)-1; i++ {
+		if wm.ObstacleFree(p[i], p[i+1]) { // if the path is valid, append the point
+			final = append(final, p[i])
+		} else {
+			_, newpoint := r.RRTstar(p[i], p[i+1], N, rad, deltaQ, goalRadius, min, max)
+			if newpoint == nil {
+				continue
+			}
+			newpath := r.ExtractPath(newpoint)
+			final = append(final, newpath[1:]...) // schauen ob stimmt
+		}
+	}
+
+	if len(p) > 0 {
+		final = append(final, p[len(p)-1])
+	}
+
+	return final
 }

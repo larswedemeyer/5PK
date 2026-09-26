@@ -172,7 +172,7 @@ func searchPointInKDTreeHilf(p *ty.KDNode, L []*ty.KDNode, TNode *ty.KDNode, e f
 	return L
 }
 
-// RadiusSearch returns the Pointss which lay in a radius Q_near around the goalpoint
+// RadiusSearch returns the Points which lay in a radius Q_near around the goalpoint
 func RadiusSearch(p *ty.RRTNode, t ty.KDTree, radius float64) []*ty.RRTNode {
 	result := []*ty.RRTNode{} // die ergebnisse sind eine Leere Liste
 

@@ -13,7 +13,6 @@ type RRTStarTree struct { // the tree used by the rrt* algorithm
 }
 
 func RRTstar(qinit, qgoal ty.PointRRT, N int, rad, deltaQ, goalRadius, min, max float64) (*RRTStarTree, *ty.RRTNode) {
-	// func RRTstar(qinit ty.PointRRT, N int, rad, deltaQ, min, max float64) *RRTStarTree {
 	start := &ty.RRTNode{Point: qinit, Parent: nil, Children: []*ty.RRTNode{}, Cost: 0} // generates the starting point
 	tree := &RRTStarTree{Root: nil, Nodes: []*ty.RRTNode{}}                             // generates an empty rrt* tree
 
@@ -21,6 +20,8 @@ func RRTstar(qinit, qgoal ty.PointRRT, N int, rad, deltaQ, goalRadius, min, max 
 }
 
 func rRTStarHilf(qinit *ty.RRTNode, qgoal ty.PointRRT, N int, T *RRTStarTree, rad, deltaQ, goalRadius, min, max float64) (*RRTStarTree, *ty.RRTNode) {
+
+	// N number of generated points, rad search around this rad for a better point, deltaQ Stepsize, goalRadius how near we want to be next to the goal, min & max intervall in which the random points will lay
 
 	T.insertNode(nil, qinit)       // insert the starting point into the rrt* tree
 	KTree := ty.KDTree{Root: nil}  // generates an empty kd tree
