@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector> // WICHTIG: Stellt std::vector bereit; vector can shrink and grow in size, otherwise behaves like an array
+#include <cmath>
 
 // CNN
 
@@ -78,8 +79,21 @@ void flatten(){
 
 //Softmax
 
-void softmax(){
-    // Softmax
+// softmax(zi) = exp(zi) sum j=1 to d exp zj ; 1 ≤ i ≤ d 
+float softmax(const std::vector<float>& zahlen, int K, int i){ // & pointer mäßig
+    
+    if (zahlen.empty() || i < 0 || i >= K || i >= zahlen.size()) {
+        return 0.0f; // f = float
+    }
+    
+    float numerator = std::exp(zahlen[i]);
+
+    float denominator = 0.0f;
+
+    for (int j = 0; j < K; ++j ){ // K die Klassen zwischen denen Unterschieden wird (Ziel, nicht Ziel)
+        denominator += std::exp(zahlen[j]);
+    }
+    return numerator / denominator;
 }
 
 int main() {
