@@ -7,41 +7,17 @@
 // Input -> Conv -> ReLU -> Pooling -> Flatten -> Dense / Fully connected layer -> Softmax
 // Backtracking :C
 
-/* Fib
-
-using namespace std;
-
-void fibonacci() {
-    int n;
-    cout << "Enter the number of terms: ";
-    cin >> n;
-
-    long long t1 = 0, t2 = 1, nextTerm = 0; // long long datentyp; danach variablen des types
-
-    cout << "Fibonacci Series: ";
-
-    for (int i = 1; i <= n; ++i) {
-        if(i == 1) {
-            cout << t1 << ", ";
-            continue;
-        }
-        if(i == 2) {
-            cout << t2 << ", ";
-            continue;
-        }
-        
-        nextTerm = t1 + t2;
-        t1 = t2;
-        t2 = nextTerm;
-        
-        cout << nextTerm << ", ";
-    }
-    return 0;
-}
-*/
-
 // Input
 std::vector<float> image;
+
+/*
+int width = ...;
+int height = ...;
+int channels = ...;
+merken
+*/
+
+// -> bekommt ein schon in vector umgewandeltes Bild mit den Maßen
 
 // Conv
 class ConvLayer {
@@ -57,10 +33,33 @@ void relu() {
     // ReLU
 }
 
-// Pooling
-void pooling() {
-    // Pooling
+// MaxPooling -> größter Wert wird genommen
+std::vector<float> maxpooling(std::vector<float>&previmage, int width, int height, int kernel) {
+    std::vector<float> newimage = {};
+
+    // die Zeile u. Spalte die nicht vollständig vom kernel erfasst wird, wird ignoriert
+
+    // ss = startspalte, sz = startzeile
+     
+    for (int ss = 0; ss+kernel <= height; ss += kernel) { // kernel verschieben vertikal
+    for (int sz = 0; sz+kernel <= width; sz += kernel) { // kernel verschieben horizontal
+        float loc = image[ss * width + sz];
+        for (int y = 0; y < kernel; ++y) { // kernel durchgehen
+            for (int x = 0; x < kernel; ++x) {
+
+                int index = (ss + y) * width + (ss + x);
+                if (previmage[index] > loc) { // kernel max nehmen
+                loc = previmage[index];
+            }
+        }
+    }
+        newimage.push_back(loc); // kernel max eintragen
+        }
+    }
+    return newimage;
 }
+// im[1,2,3,4,5,6,7,8,9] w3 h3
+
 
 // Dense / Fully Connected Layer
 class DenseLayer {
@@ -82,7 +81,7 @@ void flatten(){
 // softmax(zi) = exp(zi) sum j=1 to d exp zj ; 1 ≤ i ≤ d 
 float softmax(const std::vector<float>& zahlen, int K, int i){ // & pointer mäßig
     
-    if (zahlen.empty() || i < 0 || i >= K || i >= zahlen.size()) {
+    if (zahlen.empty() || i < 0 || i >= K || i >= zahlen.size()) { // abfangen
         return 0.0f; // f = float
     }
     
@@ -98,7 +97,7 @@ float softmax(const std::vector<float>& zahlen, int K, int i){ // & pointer mä�
 
 int main() {
     relu();
-    pooling();
+    // maxpooling();
     DenseLayer dense;
     dense.forward();
     return 0;
