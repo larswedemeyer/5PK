@@ -5,6 +5,7 @@
 // CNN
 
 // Input -> Conv -> ReLU -> Pooling -> Flatten -> Dense / Fully connected layer -> Softmax
+// TO DO: Input -> Conv -> Flatten -> Dense / Fully connected layer
 // Backtracking :C
 
 // Input
@@ -19,22 +20,71 @@ merken
 
 // -> bekommt ein schon in vector umgewandeltes Bild mit den Maßen
 
-// Conv
-class ConvLayer {
-private:
-    float weights[3][3]; // gibt an wie viele Gewichte gespeichert werden können, hier 3x3 Feld
-    float bias; // main soll nicht die Gewichte ändern, nur die jeweiligen Funktionen
-public:
-    void forward(); // Convolution
-};
 
-// ReLU
-void relu() {
-    // ReLU
+// Conv
+
+// stride = 1; kernel 3x3
+// with padding (0 an nicht erreichten Bereichen einfügen); Kernel mit festgelegten Werten über Bild schieben
+// width height starten bei 1
+std::vector<float> convolution(std::vector<float>&previmage, int width, int height, int bias, float weights[3][3]) {
+    std::vector<float> newimage = {};
+
+    // die Zeile u. Spalte die nicht vollständig vom kernel erfasst wird, wird zu Null (erstmal mit ignorieren implementiert)
+
+    // ss = startspalte, sz = startzeile
+    // werte im kernel mit previmage multiplizieren, aufsummieren und bias addieren, dann zu neuem image hinzufügen
+
+    for (int ss = 0; ss+3 <= height; ss += 1) { // kernel verschieben vertikal
+    for (int sz = 0; sz+3 <= height; sz += 1) { // kernel verschieben horizontal
+        // float loc = previmage[ss * width + sz]; 
+        float sum = 0;
+        for (int y = 0; y < 3; y++) { // kernel durchgehen
+        for (int x = 0; x < 3; x++) { // kernel durchgehen
+           sum += weights[y][x] * previmage[(ss+y) * width + (sz+x)];
+        }
+        }
+        sum += bias;
+        newimage.push_back(sum); // berechnete eintragen in neue
+    }
+    }
+    return newimage;
 }
 
+
+// Width of the new picture after pooling
+
+// we know that the kernel is the size of 3x3
+int newWidthConv(int width) {
+    if (width >= 2) {
+    return width-2;
+    }
+    return 0;
+}
+
+
+// Hight of the new picture after pooling
+
+int newHeightConv(int height) {
+    if (height >= 2) {
+    return height-2;
+    }
+    return 0;
+}
+
+
+// ReLU
+
+float reLu(float x) {
+    if (x > 0) {
+        return x;
+    }
+    return 0;
+}
+
+
 // MaxPooling -> größter Wert wird genommen
-std::vector<float> maxpooling(std::vector<float>&previmage, int width, int height, int kernel) {
+// stride (verschiebung) so groß wie kernel (also 2)
+std::vector<float> maxPooling(std::vector<float>&previmage, int width, int height, int kernel) {
     std::vector<float> newimage = {};
 
     // die Zeile u. Spalte die nicht vollständig vom kernel erfasst wird, wird ignoriert
@@ -43,11 +93,11 @@ std::vector<float> maxpooling(std::vector<float>&previmage, int width, int heigh
      
     for (int ss = 0; ss+kernel <= height; ss += kernel) { // kernel verschieben vertikal
     for (int sz = 0; sz+kernel <= width; sz += kernel) { // kernel verschieben horizontal
-        float loc = image[ss * width + sz];
+        float loc = previmage[ss * width + sz]; // previ or i?
         for (int y = 0; y < kernel; ++y) { // kernel durchgehen
             for (int x = 0; x < kernel; ++x) {
 
-                int index = (ss + y) * width + (ss + x);
+                int index = (ss + y) * width + (sz + x);
                 if (previmage[index] > loc) { // kernel max nehmen
                 loc = previmage[index];
             }
@@ -58,10 +108,24 @@ std::vector<float> maxpooling(std::vector<float>&previmage, int width, int heigh
     }
     return newimage;
 }
-// im[1,2,3,4,5,6,7,8,9] w3 h3
+
+
+// Width of the new picture after pooling
+
+int newWidthPooling(int width, int kernel) {
+    return width / kernel;
+}
+
+
+// Hight of the new picture after pooling
+
+int newHeightPooling(int height, int kernel) {
+    return height / kernel;
+}
 
 
 // Dense / Fully Connected Layer
+
 class DenseLayer {
 private:
     // Gewichte
@@ -71,10 +135,22 @@ public:
     void forward();
 };
 
+
 // Flatten
-void flatten(){
-    // Flatten
+
+std::vector<float> flatten(std::vector<std::vector<float>>& image){
+    std::vector<float> newimage = {};
+    int n = image.size(); // Zeilen
+    int m = image[0].size(); // Elemente erste Zeile
+
+    for (int y = 0; y < n; ++y ) {
+    for (int x = 0; x < m; ++x ) {
+        newimage.push_back(image[y][x]); // kernel max eintragen
+    }
 }
+return newimage;
+}
+
 
 //Softmax
 
@@ -96,9 +172,9 @@ float softmax(const std::vector<float>& zahlen, int K, int i){ // & pointer mä�
 }
 
 int main() {
-    relu();
+    std::cout << reLu(0.04);
     // maxpooling();
-    DenseLayer dense;
-    dense.forward();
+    //DenseLayer dense;
+    //dense.forward();
     return 0;
 }
