@@ -4,7 +4,7 @@
 
 // CNN
 
-// Input -> Conv -> ReLU -> Pooling -> Flatten -> Dense / Fully connected layer -> Softmax
+// Input -> Conv -> ReLU -> Pooling -> Upsampling -> Flatten -> Dense / Fully connected layer -> Softmax
 // TO DO: Input -> Conv -> Flatten -> Dense / Fully connected layer
 // Backtracking :C
 
@@ -124,17 +124,33 @@ int newHeightPooling(int height, int kernel) {
 }
 
 
-// Dense / Fully Connected Layer
+// Upsampling
 
-class DenseLayer {
-private:
-    // Gewichte
-    // Bias
+// after the Convolution and Pooling the image should be brought back to its original size
 
-public:
-    void forward();
-};
+#include <vector>
 
+std::vector<std::vector<float>> upsampling(const std::vector<std::vector<float>>& image) {
+    if (image.empty() || image[0].empty()) return {};
+
+    int n = image.size(); // Zeilen
+    int m = image[0].size(); // Spalten
+
+    std::vector<std::vector<float>> newimage(2 * n, std::vector<float>(2 * m)); // leeres Grid 2mx2n
+
+    for (int y = 0; y < n; ++y) { // für die alten Zeilen
+        for (int x = 0; x < m; ++x) { // Element jeder Spalte
+            float val = image[y][x];
+
+            newimage[2 * y][2 * x]         = val; // 2 x 2 direkt ins Zielbild
+            newimage[2 * y][2 * x + 1]     = val;
+            newimage[2 * y + 1][2 * x]     = val;
+            newimage[2 * y + 1][2 * x + 1] = val;
+        }
+    }
+
+    return newimage;
+}
 
 // Flatten
 
@@ -150,6 +166,18 @@ std::vector<float> flatten(std::vector<std::vector<float>>& image){
 }
 return newimage;
 }
+
+
+// Dense / Fully Connected Layer
+
+class DenseLayer {
+private:
+    // Gewichte
+    // Bias
+
+public:
+    void forward();
+};
 
 
 //Softmax
