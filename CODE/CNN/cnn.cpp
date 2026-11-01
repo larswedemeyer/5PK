@@ -2,6 +2,13 @@
 #include <vector> // WICHTIG: Stellt vector bereit; vector can shrink and grow in size, otherwise behaves like an array
 #include <cmath>
 #include <algorithm>
+#include <string>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+
+
 using namespace std;
 // CNN
 
@@ -9,20 +16,46 @@ using namespace std;
 // TO DO: Input
 // Backtracking :C
 
+
 // Input
 
-vector<vector<float>> input(vector<vector<float>> a) {
-    return a;
+// JPEG oder PNG noch in Graustufen
+vector<vector<float>> loadImage(string filename) {
+    int width, height, channels;
+    unsigned char* data = stbi_load(filename.c_str(),&width,&height,&channels,1);
+    if (data == nullptr) {
+        cerr << "Fehler beim Laden: "
+             << stbi_failure_reason() << endl;
+        return {};
+    }
+    vector<vector<float>> image(height, vector<float>(width));
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            // Pixelwert von [0, 255] auf [0, 1] normalisieren
+            image[y][x] = data[y * width + x] / 255.0f;
+        }
+    }
+    stbi_image_free(data);
+    cout << "Bild: " << width << " x "
+         << height << endl;
+    return image;
 }
 
-/*
-int width = ...;
-int height = ...;
-int channels = ...;
-merken
-*/
+int main() {
+    vector<vector<float>> image =
+        loadImage("ball.jpg");
 
-// -> bekommt ein schon in vector umgewandeltes Bild mit den Maßen
+    if (image.empty()) {
+        return 1;
+    }
+
+    cout << "Pixel oben links: "
+         << image[0][0] << endl;
+
+    return 0;
+}
+
+
 
 
 // Conv
@@ -59,9 +92,27 @@ vector<vector<float>> convolution(vector<vector<float>>& previmage,int bias,int 
 }
 
 
-// ReLU
+// Aktivierungsfunktion nach Conv auf Feature Map anwenden
 
-float reLu(float x) {
+vector<vector<float>> afconv(vector<vector<float>>& previmage) {
+    if (previmage.empty() || previmage[0].empty()) return {};
+    
+    int n = previmage.size();       // Zeilen
+    int m = previmage[0].size();    // Spalten
+    vector<vector<float>> newimage(n, vector<float>(m));
+    
+    for (int y = 0; y < n; ++y) {
+    for (int x = 0; x < m; ++x) {
+        newimage[y][x] = afco(previmage[y][x]);
+        }
+    }
+    return newimage;
+}
+
+
+// Aktivierungsfunktion nach Conv (ReLU)
+
+float afco(float x) {
     if (x > 0) {
         return x;
     }
@@ -196,6 +247,6 @@ float softmax(const vector<float>& zahlen, int K, int i){ // & pointer mäßig
 }
 
 int main() {
-    cout << reLu(0.04);
+    cout << afco(0.04);
     return 0;
 }
